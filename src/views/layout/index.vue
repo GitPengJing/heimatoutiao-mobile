@@ -1,7 +1,11 @@
 <template>
   <div class="container">
     <!-- 顶部导航 fixed固定在顶部 如果路由地址是/user就没有van-nav-bar-->
-    <van-nav-bar title="黑马头条" fixed right-text="搜索" v-if="$route.path!=='/user'">
+    <van-nav-bar fixed
+    title="黑马头条"
+    right-text="搜索"
+    v-if="$route.path!=='/user'"
+    @click-right="$router.push('/search')">
     </van-nav-bar>
     <!-- 中间二级路由 如果地址是/user就没有padding-top-->
     <div class="my-wrapper" :class="{noTop:$route.path==='/user'}">
