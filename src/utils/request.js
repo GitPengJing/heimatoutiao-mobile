@@ -50,7 +50,7 @@ instance.interceptors.response.use(function (response) {
     const path = {
       path: '/login',
       query: {
-        redirectUrl: router.currentRoute.fullpath // 当前路由的完整地址
+        redirectUrl: router.currentRoute.fullPath // 当前路由的完整地址
       }
     }
     // 如果有refresh_token调用接口去更新token
