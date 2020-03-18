@@ -30,12 +30,14 @@
 </template>
 
 <script>
+import { login } from '@/api/user' // 引入登录方法
+import { mapMutations } from 'vuex' // 引入mutations中的方法
 export default {
   data () {
     return {
       loginForm: {
-        mobile: '', // 手机号
-        code: '' // 验证码
+        mobile: '13911111111', // 手机号
+        code: '246810' // 验证码
       },
       errorMessage: {
         mobile: '', // 手机号错误信息提示
@@ -44,6 +46,7 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(['reviseUser']),
     // 校验手机号
     checkMobile () {
       // 手机号不能为空
@@ -73,9 +76,21 @@ export default {
       return true
     },
     // 点击登录校验
-    login () {
-      if (this.checkMobile() && this.checkCode()) {
-        console.log('校验通过')
+    async login () {
+      const validateMobile = this.checkMobile()
+      const validateCode = this.checkCode()
+      if (validateMobile && validateCode) {
+        try {
+          // 如果校验通过请求接口
+          const res = await login(this.loginForm)
+          this.reviseUser({ user: res }) // 更新token
+          // 判断是否需要跳转页面
+          const { redirectUrl } = this.$route.query
+          this.$router.push(redirectUrl || '/')
+        } catch (error) {
+          // 错误提示信息
+          this.$Pnotify({ message: '手机号或验证码错误' })
+        }
       }
     }
   }
