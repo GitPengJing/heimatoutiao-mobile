@@ -7,7 +7,8 @@
  */
 import axios from 'axios' // 引入axios
 import JSONbig from 'json-bigint' // 引入大数字插件
-import store from '@/store'
+import store from '@/store' // 引入vuex中的store实例对象 替代this.$store
+import router from '@/router' // 引入router对象
 // axios.create()等于new了一个实例对象
 const instance = axios.create({
   baseURL: 'http://ttapi.research.itcast.cn/app/v1_0', // 基地址
@@ -39,7 +40,52 @@ instance.interceptors.response.use(function (response) {
   } catch (error) {
     return response.data
   }
-}, function (error) {
+}, async function (error) {
+  // 边界判断 如果不加error.response
+  // error.response不存在的话，error.response.status就会报错
+  // 例var a={} , a.b为undefined  a.b.c就会报错
+  if (error.response && error.response.status === 401) {
+    // 如果状态码是401则token失效
+    // path传对象形式 ，从哪失败回哪里
+    const path = {
+      path: '/login',
+      query: {
+        redirectUrl: router.currentRoute.fullpath // 当前路由的完整地址
+      }
+    }
+    // 如果有refresh_token调用接口去更新token
+    if (store.state.user.refresh_token) {
+      try {
+        const res = await axios({
+          method: 'put',
+          url: 'http://ttapi.research.itcast.cn/app/v1_0/authorizations',
+          headers: { Authorization: `Bearer ${store.state.user.refresh_token}` }
+        })
+        // 请求成功，更新vuex中的数据
+        store.commit('reviseUser', {
+          user: {
+            token: res.data.data.token, // 新token
+            refresh_token: store.state.user.refresh_token // 用来交换的refresh_token
+          }
+        })
+        //  更新完之后再次发送之前的错误请求,但是token已经更新的就不会再请求错误
+        //  让用户感觉不到已经更换了token
+        return instance(error.config)
+      } catch (error) {
+        // 如果请求失败 说明refresh_token也失效了 只能回去重新登录
+        // 删除失效的token
+        store.commit('deleteUser')
+        // 回到登录页
+        router.push(path)
+      }
+    } else {
+      // 如果没有refresh_token
+      // 删除token 直接回到登录页
+      store.commit('deleteUser')
+      router.push(path)
+    }
+  }
+  // 直接返回错误
   return Promise.reject(error)
 })
 export default instance // 导出新实例
