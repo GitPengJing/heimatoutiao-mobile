@@ -12,7 +12,7 @@ export function setUser (user) {
 export function getUser () {
   // JSON.parse()转化是括号内为空会报错
   // 如果||前为true 取前面的值 为false 取后面的值
-  JSON.parse(window.localStorage.getItem(USER_TOKEN) || '{}') // json字符串转化为对象
+  return JSON.parse(window.localStorage.getItem(USER_TOKEN) || '{}') // json字符串转化为对象
 }
 // 删除用户token
 export function delUser () {
