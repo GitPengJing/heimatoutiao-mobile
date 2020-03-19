@@ -6,7 +6,8 @@
          <!-- 内部需要放置子 标签  title值为当前显示的内容-->
          <!-- van-tab是vant组件的样式  -->
          <van-tab :title="item.name" v-for="item in channels" :key="item.id">
-            <articleList/>
+           <!-- 将频道id传给文章列表组件 -->
+            <articleList :channel_id='item.id'></articleList>
          </van-tab>
       </van-tabs>
       <!-- 在tabs下放置图标  编辑频道的图标 -->
