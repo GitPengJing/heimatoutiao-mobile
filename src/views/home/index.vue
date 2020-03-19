@@ -7,12 +7,12 @@
          <van-tab :title="`标签${item}`" v-for="item in 10" :key="item">
             <!-- 生成若干个单元格 -->
             <!-- 这里为什么叫scroll-wrapper  因为样式中对它进行了设置 -->
-            <div class='scroll-wrapper'>
+            <!-- <div class='scroll-wrapper'>
               <van-cell-group>
                 <van-cell title="标题" value="内容" :key="item" v-for="item in 20"></van-cell>
               </van-cell-group>
-            </div>
-
+            </div> -->
+            <articleList/>
          </van-tab>
       </van-tabs>
       <!-- 在tabs下放置图标  编辑频道的图标 -->
@@ -24,7 +24,12 @@
 </template>
 
 <script>
-export default {}
+import articleList from './components/article-list' // 引入文章列表组件
+export default {
+  components: {
+    articleList
+  }
+}
 </script>
 
 <style lang='less' scoped>
