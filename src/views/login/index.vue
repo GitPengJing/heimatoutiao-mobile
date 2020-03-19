@@ -86,6 +86,7 @@ export default {
           this.reviseUser({ user: res }) // 更新token
           // 判断是否需要跳转页面
           const { redirectUrl } = this.$route.query
+          // 短路表达式 前面为ture取前面的值 否则取后面的值
           this.$router.push(redirectUrl || '/')
         } catch (error) {
           // 错误提示信息
