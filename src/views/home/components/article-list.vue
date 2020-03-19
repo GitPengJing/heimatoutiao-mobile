@@ -6,6 +6,7 @@
     :finished="finished"
     @load="onload">
     <!-- 如果组件距离底部的距离超过了限定的值就会触发load事件 会把uploading变为true 表示加载完毕-->
+        <van-cell v-for="item in articles" :key="item" :title="item"></van-cell>
     </van-list>
   </div>
 </template>
@@ -15,15 +16,25 @@ export default {
   data () {
     return {
       uploading: false, // 加载状态
-      finished: false // 数据是否加载完毕
+      finished: false, // 数据是否加载完毕
+      articles: [] // 文章列表
     }
   },
   methods: {
     onload () {
-      console.log('加载完毕')
-      setTimeout(() => {
-        this.finished = true
-      }, 1000)
+      console.log('开始加载数据')
+      if (this.articles.length > 50) {
+        // 文章有五十条则数据加载完毕
+        this.finished = true // 加载完毕
+      } else {
+        const arr = Array.from(Array(15), (value, index) => {
+          return this.articles.length + index + 1
+        })
+        // 把加载的数据从文章列表末尾追加
+        this.articles.push(...arr)
+        // 关闭加载状态
+        this.uploading = false
+      }
     }
   }
 }

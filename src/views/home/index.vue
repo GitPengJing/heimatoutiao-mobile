@@ -1,7 +1,8 @@
 <template>
   <div class="container">
       <!-- 放置tabs组件 -->
-      <van-tabs>
+      <!-- swipeable 手势滑动切换 -->
+      <van-tabs v-model="typeIndex" swipeable>
          <!-- 内部需要放置子 标签  title值为当前显示的内容-->
          <!-- van-tab是vant组件的样式  -->
          <van-tab :title="`标签${item}`" v-for="item in 10" :key="item">
@@ -28,6 +29,11 @@ import articleList from './components/article-list' // 引入文章列表组件
 export default {
   components: {
     articleList
+  },
+  data () {
+    return {
+      typeIndex: 1 // 频道的索引
+    }
   }
 }
 </script>
