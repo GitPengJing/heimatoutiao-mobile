@@ -70,7 +70,7 @@ export default {
   methods: {
     // 下拉加载 组件距离底部距离小于默认值触发
     async onload () {
-      console.log('开始加载数据')
+      await this.$sleep()
       //   请求接口 获取文章数据
       //   channel_id为父组件传来的频道id
       //   timeStamp 表示时间戳 请求历史推荐传历史时间戳
@@ -93,6 +93,7 @@ export default {
     },
     // 下拉刷新时触发
     async onRefresh () {
+      await this.$sleep()
       const data = await getArticles({
         channel_id: this.channel_id,
         timestamp: Date.now() // 请求新的数据传当前时间戳
