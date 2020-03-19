@@ -2,17 +2,10 @@
   <div class="container">
       <!-- 放置tabs组件 -->
       <!-- swipeable 手势滑动切换 -->
-      <van-tabs v-model="typeIndex" swipeable>
+      <van-tabs swipeable>
          <!-- 内部需要放置子 标签  title值为当前显示的内容-->
          <!-- van-tab是vant组件的样式  -->
-         <van-tab :title="`标签${item}`" v-for="item in 10" :key="item">
-            <!-- 生成若干个单元格 -->
-            <!-- 这里为什么叫scroll-wrapper  因为样式中对它进行了设置 -->
-            <!-- <div class='scroll-wrapper'>
-              <van-cell-group>
-                <van-cell title="标题" value="内容" :key="item" v-for="item in 20"></van-cell>
-              </van-cell-group>
-            </div> -->
+         <van-tab :title="item.name" v-for="item in channels" :key="item.id">
             <articleList/>
          </van-tab>
       </van-tabs>
@@ -26,14 +19,24 @@
 
 <script>
 import articleList from './components/article-list' // 引入文章列表组件
+import { getMyChannels } from '@/api/channels' // 引入获取频道方法
 export default {
   components: {
     articleList
   },
   data () {
     return {
-      typeIndex: 1 // 频道的索引
+      channels: [] // 频道数据
     }
+  },
+  methods: {
+    async getMyChannels () {
+      const res = await getMyChannels()
+      this.channels = res.channels
+    }
+  },
+  created () {
+    this.getMyChannels()
   }
 }
 </script>
