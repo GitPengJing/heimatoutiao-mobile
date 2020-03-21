@@ -10,7 +10,7 @@
            <!-- @showOperate 子组件传来的指令 -->
             <articleList @showOperate="openMoreOperate" :channel_id='item.id'/>
             <van-popup :style="{ width: '80%' }" v-model="showMoreOperate">
-              <moreOperate @dislike="dislikeArticle" />
+              <moreOperate @dislike="dislikeORreport('dislike')" @report="dislikeORreport('report',$event)"/>
             </van-popup>
          </van-tab>
       </van-tabs>
@@ -26,7 +26,7 @@
 import moreOperate from './components/more-operate' // 引入弹窗内容组件
 import articleList from './components/article-list' // 引入文章列表组件
 import { getMyChannels } from '@/api/channels' // 引入获取频道方法
-import { dislikeArticle } from '@/api/articles' // 引入不感兴趣文章接口
+import { dislikeArticle, reportArticle } from '@/api/articles' // 引入不感兴趣文章接口
 import eventBus from '@/utils/eventBus' // 引入公交车事件
 export default {
   components: {
@@ -43,13 +43,17 @@ export default {
   },
   methods: {
     // 不感兴趣文章
-    async dislikeArticle () {
+    async dislikeORreport (operateType, type) {
       try {
-        await dislikeArticle({
+        operateType === 'dislike'
+          ? await dislikeArticle({
           // 传入点击的文章id
-          target: this.articleID
-        })
-        // 操作成功提示信息
+            target: this.articleID
+          }) : await reportArticle({
+            target: this.articleID,
+            type
+          })
+          // 操作成功提示信息
         this.$Pnotify({
           type: 'success',
           message: '操作成功'
