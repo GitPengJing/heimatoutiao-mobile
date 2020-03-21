@@ -10,30 +10,19 @@
           <van-cell v-for="item in articles" :key="item.art_id.toString()">
             <div class="article_item">
               <h3 class="van-ellipsis">{{item.title}}</h3>
-              <div class="img_box" v-if="item.cover.type===3">
+              <div class="img_box" v-if="item.cover.type === 3">
                   <!-- 根据封面类型觉得是三图 单图 还是无图 -->
                 <van-image class="w33" fit="cover" :src="item.cover.images[0]" />
                 <van-image class="w33" fit="cover" :src="item.cover.images[1]" />
                 <van-image class="w33" fit="cover" :src="item.cover.images[2]" />
               </div>
-              <div class="info_box">
-                <span>{{item.aut_name}}</span>
-                <span>{{item.comm_count}}评论</span>
-                <span>{{item.pubdate}}</span>
-                <span class="close">
-                  <van-icon name="cross"></van-icon>
-                </span>
-              </div>
-            </div>
-            <div class="article_item">
-              <h3 class="van-ellipsis">{{item.title}}</h3>
-              <div class="img_box" v-if="item.cover.type===1">
+              <div class="img_box" v-if="item.cover.type === 1">
                 <van-image class="w100" fit="cover" :src="item.cover.images[0]" />
               </div>
               <div class="info_box">
                 <span>{{item.aut_name}}</span>
                 <span>{{item.comm_count}}评论</span>
-                <span>{{item.pubdate}}</span>
+                <span>{{item.pubdate|relTime}}</span>
                 <span class="close">
                   <van-icon name="cross"></van-icon>
                 </span>
