@@ -10,8 +10,8 @@
           <van-cell v-for="item in articles" :key="item.art_id.toString()">
             <div class="article_item">
               <h3 class="van-ellipsis">{{item.title}}</h3>
+              <!-- 根据封面类型决定是三图type===3 单图type===1 还是无图 -->
               <div class="img_box" v-if="item.cover.type === 3">
-                  <!-- 根据封面类型觉得是三图 单图 还是无图 -->
                 <van-image lazy-load class="w33" fit="cover" :src="item.cover.images[0]" />
                 <van-image lazy-load class="w33" fit="cover" :src="item.cover.images[1]" />
                 <van-image lazy-load class="w33" fit="cover" :src="item.cover.images[2]" />
@@ -23,7 +23,9 @@
                 <span>{{item.aut_name}}</span>
                 <span>{{item.comm_count}}评论</span>
                 <span>{{item.pubdate|relTime}}</span>
-                <span class="close">
+                <!-- 根据有无token来判断×的显示 -->
+                <!-- $emit('showOperate')给父组件传送指令 -->
+                <span @click="$emit('showOperate',item.art_id.toString())" class="close" v-if="user.token">
                   <van-icon name="cross"></van-icon>
                 </span>
               </div>
@@ -37,7 +39,12 @@
 
 <script>
 import { getArticles } from '@/api/articles' // 引入获取文章方法
+import { mapState } from 'vuex' // 引入共享数据
+import eventBus from '@/utils/eventBus'
 export default {
+  computed: {
+    ...mapState(['user'])
+  },
   props: {
     //   接收父组件传的频道id
     channel_id: {
@@ -55,6 +62,25 @@ export default {
       successText: '', // 刷新成功提示文本
       timeStamp: null // 存放时间戳
     }
+  },
+  created () {
+    // 监听delArticle事件
+    eventBus.$on('delArticle', (artId, channelId) => {
+      // 判断点击的文章所在频道 是否是自己所在的频道
+      if (channelId === this.channel_id) {
+        // 如果是 找到该条文章 返回下标
+        const index = this.articles.findIndex(item => item.art_id.toString() === artId)
+        if (index > -1) {
+          // 删除对应的文章
+          this.articles.splice(index, 1)
+        }
+        // 如果删完了数据列表
+        if (this.articles.length === 0) {
+          // 再次请求文章
+          this.onload()
+        }
+      }
+    })
   },
   methods: {
     // 下拉加载 组件距离底部距离小于默认值触发
