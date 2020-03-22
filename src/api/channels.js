@@ -58,6 +58,24 @@ export function delMyChannels (id) {
   })
 }
 
+/*******
+ * 添加我的频道
+ *
+ */
+export function addMyChannels (channel) {
+  return new Promise(function (resolve, reject) {
+    // 根据有没有token判断是游客添加还是登录用户添加
+    const key = store.state.user.token ? CACHE_CHANNEL_V : CACHE_CHANNEL_T
+    // 去除对应的key的数据  （登录用户还是游客）
+    const channels = JSON.parse(localStorage.getItem(key))
+    // 添加到我的频道中
+    channels.push(channel)
+    // 添加后的频道数据重新写入
+    localStorage.setItem(key, JSON.stringify(channels))
+    resolve() // 执行成功
+  })
+}
+
 /*****
  * 获取全部频道
  */

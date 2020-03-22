@@ -24,7 +24,8 @@
               <!-- @accessChannel触发子组件channel-edit的自定义进入频道事件 -->
               <!-- @delChannels触发子组件channel-edit的自定义删除频道事件 -->
               <channelEdit
-              @delChannels="delMyChannels"
+              @addMyChannels="addMyChannels"
+              @delMyChannels="delMyChannels"
               :activeIndex="activeIndex"
               @accessChannel="accessChannel"
               :mychannel="channels"/>
@@ -43,7 +44,7 @@
 import moreOperate from './components/more-operate' // 引入弹窗内容组件
 import articleList from './components/article-list' // 引入文章列表组件
 import channelEdit from './components/channel-edit' // 引入频道编辑组件
-import { getMyChannels, delMyChannels } from '@/api/channels' // 引入获取频道方法
+import { getMyChannels, delMyChannels, addMyChannels } from '@/api/channels' // 引入获取频道方法
 import { dislikeArticle, reportArticle } from '@/api/articles' // 引入不感兴趣文章接口
 import eventBus from '@/utils/eventBus' // 引入公交车事件
 export default {
@@ -62,16 +63,26 @@ export default {
     }
   },
   methods: {
+    // 添加我的频道
+    async addMyChannels (channel) {
+      await addMyChannels(channel)
+      this.channels.push(channel)
+    },
     // 删除我的频道
     async delMyChannels (id) {
       try {
         await delMyChannels(id)
+        // 找到要删除的频道对应的索引
         const index = this.channels.findIndex(item => item.id === id)
+        // 判断索引跟激活索引的关系
         if (index <= this.activeIndex) {
+          // 如果要删除的频道索引小于激活的索引 则激活的索引要减一 填补空缺
           this.activeIndex--
         }
+        // 删除频道
         this.channels.splice(index, 1)
       } catch (error) {
+        // 删除失败报错
         this.$Pnotify({ message: '删除失败' })
       }
     },
