@@ -7,10 +7,13 @@
         <van-button v-if="!editing" @click="editing=true" size="mini" type="info" plain>编辑</van-button>
         <van-button v-else @click="editing=false" size="mini" type="danger" plain>完成</van-button>
       </div>
+      <!-- 我的频道显示列表 -->
       <van-grid class="van-hairline--left">
-        <van-grid-item v-for="index in 8" :key="index">
-          <span class="f12">频道{{index}}</span>
-          <van-icon class="btn" name="cross"></van-icon>
+          <!-- 循环我的频道并进行数据渲染 -->
+        <van-grid-item v-for="(item,index) in mychannel" :key="item.id">
+          <span class="f12">{{item.name}}</span>
+          <!-- 判断×号的显示 1.推荐永远不显示 2.点击编辑显示-->
+          <van-icon v-if="index&&editing" class="btn" name="cross"></van-icon>
         </van-grid-item>
       </van-grid>
     </div>
@@ -28,9 +31,17 @@
 
 <script>
 export default {
+// 接收父组件传来的我的频道数据
+  props: {
+    mychannel: {
+      required: true, // 该数据必传
+      type: Array, // 传过来的数据类型
+      default: () => [] // 默认传一个空数组
+    }
+  },
   data () {
     return {
-      editing: false
+      editing: false // 编辑状态
     }
   }
 }

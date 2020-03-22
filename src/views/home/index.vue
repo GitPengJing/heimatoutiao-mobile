@@ -14,7 +14,8 @@
             </van-popup>
             <!-- 频道编辑弹层 -->
             <van-action-sheet v-model="showChannelEdit" :round="false" title="编辑频道">
-              <channelEdit/>
+              <!-- 将我的频道数据传给子组件channel-edit -->
+              <channelEdit :mychannel="channels"/>
             </van-action-sheet>
          </van-tab>
       </van-tabs>
