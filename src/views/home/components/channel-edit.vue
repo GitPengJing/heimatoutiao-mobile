@@ -14,7 +14,7 @@
             <!-- 定义自定义事件 将频道索引传给父组件-->
           <span :class="{red:activeIndex===index}" @click="$emit('accessChannel',index)" class="f12">{{item.name}}</span>
           <!-- 判断×号的显示 1.推荐永远不显示 2.点击编辑显示-->
-          <van-icon v-if="index&&editing" class="btn" name="cross"></van-icon>
+          <van-icon @click="$emit('delChannels',item.id)" v-if="index&&editing" class="btn" name="cross"></van-icon>
         </van-grid-item>
       </van-grid>
     </div>

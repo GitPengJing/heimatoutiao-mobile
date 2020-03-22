@@ -10,14 +10,24 @@
            <!-- @showOperate 子组件传来的指令 -->
             <articleList @showOperate="openMoreOperate" :channel_id='item.id'/>
             <van-popup :style="{ width: '80%' }" v-model="showMoreOperate">
-              <moreOperate @dislike="dislikeORreport('dislike')" @report="dislikeORreport('report',$event)"/>
+              <moreOperate
+              @dislike="dislikeORreport('dislike')"
+              @report="dislikeORreport('report',$event)"/>
             </van-popup>
             <!-- 频道编辑弹层 -->
-            <van-action-sheet v-model="showChannelEdit" :round="false" title="编辑频道">
+            <van-action-sheet
+            v-model="showChannelEdit"
+            :round="false"
+            title="编辑频道">
               <!-- :mychannel将我的频道数据传给子组件channel-edit -->
               <!-- :activeIndex将激活的频道索引传给子组件channel-edit -->
-              <!-- @accessChannel触发子组件channel-edit的自定义事件 -->
-              <channelEdit :activeIndex="activeIndex" @accessChannel="accessChannel" :mychannel="channels"/>
+              <!-- @accessChannel触发子组件channel-edit的自定义进入频道事件 -->
+              <!-- @delChannels触发子组件channel-edit的自定义删除频道事件 -->
+              <channelEdit
+              @delChannels="delMyChannels"
+              :activeIndex="activeIndex"
+              @accessChannel="accessChannel"
+              :mychannel="channels"/>
             </van-action-sheet>
          </van-tab>
       </van-tabs>
@@ -33,7 +43,7 @@
 import moreOperate from './components/more-operate' // 引入弹窗内容组件
 import articleList from './components/article-list' // 引入文章列表组件
 import channelEdit from './components/channel-edit' // 引入频道编辑组件
-import { getMyChannels } from '@/api/channels' // 引入获取频道方法
+import { getMyChannels, delMyChannels } from '@/api/channels' // 引入获取频道方法
 import { dislikeArticle, reportArticle } from '@/api/articles' // 引入不感兴趣文章接口
 import eventBus from '@/utils/eventBus' // 引入公交车事件
 export default {
@@ -52,6 +62,19 @@ export default {
     }
   },
   methods: {
+    // 删除我的频道
+    async delMyChannels (id) {
+      try {
+        await delMyChannels(id)
+        const index = this.channels.findIndex(item => item.id === id)
+        if (index <= this.activeIndex) {
+          this.activeIndex--
+        }
+        this.channels.splice(index, 1)
+      } catch (error) {
+        this.$Pnotify({ message: '删除失败' })
+      }
+    },
     // 点击频道进入对应频道
     accessChannel (index) {
       this.activeIndex = index // 将点击的频道索引给激活的频道索引

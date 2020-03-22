@@ -32,6 +32,31 @@ export function getMyChannels () {
   }
   )
 }
+/******
+ * 删除我的频道
+ */
+export function delMyChannels (id) {
+  return new Promise(function (resolve, reject) {
+    // 根据有没有token判断是游客删除还是登录用户删除
+    const key = store.state.user.token ? CACHE_CHANNEL_V : CACHE_CHANNEL_T
+    // 将key中的值取出来给到channels
+    const channels = JSON.parse(localStorage.getItem(key))
+    // 找到要删除的数据对应的索引
+    const index = channels.findIndex(item => item.id === id)
+    // 判断索引是否存在
+    if (index > -1) {
+      // 如果存在，就删除该条数据
+      channels.splice(index, 1)
+      // 将删除之后的数据写入本地
+      localStorage.setItem(key, JSON.stringify(channels))
+      // 执行成功进入resolve()
+      resolve()
+    } else {
+      // 如果索引不存在 就报错
+      reject(new Error('没有找到对应的频道'))
+    }
+  })
+}
 
 /*****
  * 获取全部频道
