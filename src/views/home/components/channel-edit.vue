@@ -12,7 +12,7 @@
           <!-- 循环我的频道并进行数据渲染 -->
         <van-grid-item v-for="(item,index) in mychannel" :key="item.id">
             <!-- 定义自定义事件 将频道索引传给父组件-->
-          <span @click="$emit('accessChannel',index)" class="f12">{{item.name}}</span>
+          <span :class="{red:activeIndex===index}" @click="$emit('accessChannel',index)" class="f12">{{item.name}}</span>
           <!-- 判断×号的显示 1.推荐永远不显示 2.点击编辑显示-->
           <van-icon v-if="index&&editing" class="btn" name="cross"></van-icon>
         </van-grid-item>
@@ -33,12 +33,18 @@
 <script>
 import { getAllchannels } from '@/api/channels'
 export default {
-// 接收父组件传来的我的频道数据
   props: {
+    // 接收父组件传来的我的频道数据
     mychannel: {
       required: true, // 该数据必传
       type: Array, // 传过来的数据类型
       default: () => [] // 默认传一个空数组
+    },
+    // 接收父组件传来的激活频道的索引数据
+    activeIndex: {
+      required: true,
+      type: Number,
+      default: 0
     }
   },
   data () {

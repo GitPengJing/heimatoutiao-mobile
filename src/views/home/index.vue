@@ -14,8 +14,10 @@
             </van-popup>
             <!-- 频道编辑弹层 -->
             <van-action-sheet v-model="showChannelEdit" :round="false" title="编辑频道">
-              <!-- 将我的频道数据传给子组件channel-edit -->
-              <channelEdit @accessChannel="accessChannel" :mychannel="channels"/>
+              <!-- :mychannel将我的频道数据传给子组件channel-edit -->
+              <!-- :activeIndex将激活的频道索引传给子组件channel-edit -->
+              <!-- @accessChannel触发子组件channel-edit的自定义事件 -->
+              <channelEdit :activeIndex="activeIndex" @accessChannel="accessChannel" :mychannel="channels"/>
             </van-action-sheet>
          </van-tab>
       </van-tabs>
