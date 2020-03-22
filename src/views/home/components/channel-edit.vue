@@ -20,8 +20,8 @@
     <div class="channel">
       <div class="tit">可选频道：</div>
       <van-grid class="van-hairline--left">
-        <van-grid-item v-for="index in 8" :key="index">
-          <span class="f12">频道{{index}}</span>
+        <van-grid-item v-for="item in optionalChannels" :key="item.id">
+          <span class="f12">{{item.name}}</span>
           <van-icon class="btn" name="plus"></van-icon>
         </van-grid-item>
       </van-grid>
@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import { getAllchannels } from '@/api/channels'
 export default {
 // 接收父组件传来的我的频道数据
   props: {
@@ -41,8 +42,25 @@ export default {
   },
   data () {
     return {
-      editing: false // 编辑状态
+      editing: false, // 编辑状态
+      allChannels: [] // 全部频道数据
     }
+  },
+  methods: {
+    //  获取全部频道方法
+    async getAllchannels () {
+      const res = await getAllchannels()
+      this.allChannels = res.channels // 将返回的数据给定义的变量赋值
+    }
+  },
+  //   计算属性筛选可选频道 = 全部-我的
+  computed: {
+    optionalChannels () {
+      return this.allChannels.filter(item => !this.mychannel.some(p => p.id === item.id))
+    }
+  },
+  created () {
+    this.getAllchannels()
   }
 }
 </script>
