@@ -11,7 +11,8 @@
       <van-grid class="van-hairline--left">
           <!-- 循环我的频道并进行数据渲染 -->
         <van-grid-item v-for="(item,index) in mychannel" :key="item.id">
-          <span class="f12">{{item.name}}</span>
+            <!-- 定义自定义事件 将频道索引传给父组件-->
+          <span @click="$emit('accessChannel',index)" class="f12">{{item.name}}</span>
           <!-- 判断×号的显示 1.推荐永远不显示 2.点击编辑显示-->
           <van-icon v-if="index&&editing" class="btn" name="cross"></van-icon>
         </van-grid-item>
@@ -56,6 +57,9 @@ export default {
   //   计算属性筛选可选频道 = 全部-我的
   computed: {
     optionalChannels () {
+      // filter返回满足条件的数据
+      // some检测数组中的元素是否满足指定条件
+      // 如果全部频道中有频道id与我的频道中的id相等，则可选频道中不显示该id所对应的频道
       return this.allChannels.filter(item => !this.mychannel.some(p => p.id === item.id))
     }
   },

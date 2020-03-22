@@ -15,7 +15,7 @@
             <!-- 频道编辑弹层 -->
             <van-action-sheet v-model="showChannelEdit" :round="false" title="编辑频道">
               <!-- 将我的频道数据传给子组件channel-edit -->
-              <channelEdit :mychannel="channels"/>
+              <channelEdit @accessChannel="accessChannel" :mychannel="channels"/>
             </van-action-sheet>
          </van-tab>
       </van-tabs>
@@ -50,6 +50,11 @@ export default {
     }
   },
   methods: {
+    // 点击频道进入对应频道
+    accessChannel (index) {
+      this.activeIndex = index // 将点击的频道索引给激活的频道索引
+      this.showChannelEdit = false // 关闭编辑频道弹层
+    },
     // 不感兴趣文章
     async dislikeORreport (operateType, type) {
       try {
