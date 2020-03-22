@@ -12,12 +12,16 @@
             <van-popup :style="{ width: '80%' }" v-model="showMoreOperate">
               <moreOperate @dislike="dislikeORreport('dislike')" @report="dislikeORreport('report',$event)"/>
             </van-popup>
+            <!-- 频道编辑弹层 -->
+            <van-action-sheet v-model="showChannelEdit" :round="false" title="编辑频道">
+              <channelEdit/>
+            </van-action-sheet>
          </van-tab>
       </van-tabs>
       <!-- 在tabs下放置图标  编辑频道的图标 -->
       <span class="bar_btn">
         <!-- 放入图标 vant图标 -->
-         <van-icon name='wap-nav'></van-icon>
+         <van-icon name='wap-nav' @click="showChannelEdit=true"></van-icon>
       </span>
   </div>
 </template>
@@ -25,20 +29,23 @@
 <script>
 import moreOperate from './components/more-operate' // 引入弹窗内容组件
 import articleList from './components/article-list' // 引入文章列表组件
+import channelEdit from './components/channel-edit' // 引入频道编辑组件
 import { getMyChannels } from '@/api/channels' // 引入获取频道方法
 import { dislikeArticle, reportArticle } from '@/api/articles' // 引入不感兴趣文章接口
 import eventBus from '@/utils/eventBus' // 引入公交车事件
 export default {
   components: {
     articleList,
-    moreOperate
+    moreOperate,
+    channelEdit
   },
   data () {
     return {
       channels: [], // 频道数据
       showMoreOperate: false, // 控制弹窗的显示隐藏
       articleID: null, // 文章id
-      activeIndex: 0 // 激活的频道
+      activeIndex: 0, // 激活的频道
+      showChannelEdit: false // 控制频道编辑页的显示隐藏
     }
   },
   methods: {
@@ -140,6 +147,17 @@ export default {
     z-index: 1000;
     &::before {
       font-size: 20px;
+    }
+  }
+}
+.van-action-sheet {
+  max-height: 100%;
+  height: 100%;
+  .van-action-sheet__header {
+    background: #3296fa;
+    color: #fff;
+    .van-icon-close {
+      color: #fff;
     }
   }
 }
