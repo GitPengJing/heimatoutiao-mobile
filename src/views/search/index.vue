@@ -6,8 +6,8 @@
     <van-search @search="onSearch" v-model.trim="q" placeholder="请输入搜索关键词" shape="round" />
     <!-- 搜索建议 -->
     <van-cell-group class="suggest-box" v-if="q">
-      <van-cell icon="search">
-        <span>j</span>ava
+      <van-cell @click="toResult(item)" v-for="(item,index) in suggestionList" :key="index" icon="search">
+        {{item}}
       </van-cell>
     </van-cell-group>
     <!-- 历史记录 -->
@@ -19,7 +19,7 @@
       </div>
       <van-cell-group>
         <!-- 点击搜索记录去搜索结果页 -->
-        <van-cell @click="toSearchRes(item)" v-for="(item,index) in historyList" :key="index">
+        <van-cell @click="toResult(item)" v-for="(item,index) in historyList" :key="index">
           <a class="word_btn">{{item}}</a>
           <!-- .stop修饰符阻止冒泡事件 -->
           <van-icon @click.stop="delHistory(index)" class="close_btn" slot="right-icon" name="cross" />
@@ -30,12 +30,54 @@
 </template>
 
 <script>
+import { getSuggestion } from '@/api/articles'
 const key = 'hm-toutiao-mobile-history'
 export default {
   data () {
     return {
       q: '', // 输入框输入的内容
-      historyList: JSON.parse(localStorage.getItem(key) || '[]') // 存放搜索历史记录
+      historyList: JSON.parse(localStorage.getItem(key) || '[]'), // 存放搜索历史记录
+      suggestionList: [] // 存放搜索建议
+    }
+  },
+  // 监听q的值改变事件
+  watch: {
+    q () {
+      // 第一种.利用函数防抖 在n秒内执行该函数一次，如果n秒内再次触发了该函数，则时间重置
+      // 先清空定时器
+      // clearTimeout(this.timer)
+      // this.timer = setTimeout(async () => {
+      //   // 如果没有输入搜索内容
+      //   if (!this.q) {
+      //     // 搜索建议为空
+      //     this.suggestionList = []
+      //     return
+      //   }
+      //   // 如果有输入内容 请求搜索建议数据
+      //   const res = await getSuggestion({ q: this.q })
+      //   // 把数据赋值给变量
+      //   this.suggestionList = res.options
+      // }, 300)
+
+      // 第二种，利用函数节流 在规定时间内，只执行一次
+      // 判断是否有定时器
+      if (!this.timer) {
+        // 如果没有设置定时器
+        this.timer = setTimeout(async () => {
+          // 将定时器清空 保证定时时间结束后没有定时器
+          this.timer = null
+          // 判断是否有输入内容
+          if (!this.q) {
+            // 如果没有搜索建议为空
+            this.suggestionList = []
+            return
+          }
+          // 有输入内容 请求搜索建议数据
+          const res = await getSuggestion({ q: this.q })
+          // 赋值
+          this.suggestionList = res.options
+        }, 300)
+      }
     }
   },
   methods: {
@@ -47,8 +89,14 @@ export default {
       localStorage.setItem(key, JSON.stringify(this.historyList))
     },
     // 跳到搜索结果页
-    toSearchRes (text) {
-      // query传参
+    toResult (text) {
+      // 将点击的搜索建议添加到历史记录
+      this.historyList.push(text)
+      // 去重
+      this.historyList = Array.from(new Set(this.historyList))
+      // 将去重之后的数据存到本地
+      localStorage.setItem(key, JSON.stringify(this.historyList))
+      // query传参 跳转到搜索结果
       this.$router.push({ path: '/search/result', query: { q: text } })
     },
     // 回车搜索
