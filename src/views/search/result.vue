@@ -4,23 +4,23 @@
   title="搜索结果"
   left-arrow
   @click-left='$router.back()'></van-nav-bar>
-  <van-list>
+  <van-list v-model="uploading" :finished="finished" @load="onload" finished-text="没有了，没有奇迹了">
       <van-cell-group>
-        <van-cell v-for="item in 20" :key="item">
+        <van-cell v-for="item in articles" :key="item.art_id.toString()">
           <div class="article_item">
-            <h3 class="van-ellipsis">我们守望相助,从正月初一到三月十五</h3>
-            <!-- <div class="img_box">
-              <van-image class="w33" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
-              <van-image class="w33" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
-              <van-image class="w33" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
-            </div> -->
-            <div class="img_box">
-              <van-image class="w100" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
+            <h3 class="van-ellipsis">{{item.title}}</h3>
+            <div class="img_box" v-if="item.cover.type===3">
+              <van-image class="w33" fit="cover" :src="item.cover.images[0]" />
+              <van-image class="w33" fit="cover" :src="item.cover.images[1]" />
+              <van-image class="w33" fit="cover" :src="item.cover.images[2]" />
+            </div>
+            <div class="img_box" v-if="item.cover.type===1">
+              <van-image class="w100" fit="cover" :src="item.cover.images[0]" />
             </div>
             <div class="info_box">
-              <span>你像一阵风</span>
-              <span>8评论</span>
-              <span>10分钟前</span>
+              <span>{{item.aut_name}}</span>
+              <span>{{item.comm_count}}评论</span>
+              <span>{{item.pubdate|relTime}}</span>
             </div>
           </div>
         </van-cell>
@@ -30,8 +30,39 @@
 </template>
 
 <script>
+import { searchArticles } from '@/api/articles' // 引入搜索文章请求
 export default {
-
+  data () {
+    return {
+      uploading: false, // 上拉加载状态
+      finished: false, // 数据是否请求完毕
+      articles: [], // 搜索出来的文章
+      page: {
+        page: 1, // 当前页数
+        per_page: 10 // 每页数量
+      }
+    }
+  },
+  methods: {
+    // 滚动条滚动到底部执行
+    async onload () {
+      const { q } = this.$route.query // 获取query参数，关键词
+      // 请求参数
+      const data = await searchArticles({ ...this.page, q })
+      // 将获取到的数据添加到文章列表变量
+      this.articles.push(...data.results)
+      // 关闭加载状态
+      this.uploading = false
+      // 判断是否还有数据
+      if (data.results.length) {
+        // 如果有 表示下一页有数据 将页码切换到下一页
+        this.page.page++
+      } else {
+        // 如果没有 加载完毕
+        this.finished = true
+      }
+    }
+  }
 }
 </script>
 

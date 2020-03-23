@@ -41,3 +41,13 @@ export function getSuggestion (params) {
     params
   })
 }
+
+/***
+ * 获取搜索结果
+ */
+export function searchArticles (params) {
+  return request({
+    url: '/search',
+    params
+  })
+}
