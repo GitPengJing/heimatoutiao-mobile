@@ -27,20 +27,20 @@
             <!-- 发布时间 -->
             <span class="time">{{item.pubdate|relTime}}</span>&nbsp;
             <!-- 回复数量 -->
-            <van-tag plain @click="showReply=true">{{item.reply_count}} 回复</van-tag>
+            <van-tag plain @click="openReply(item.com_id.toString())">{{item.reply_count}} 回复</van-tag>
           </p>
         </div>
       </div>
     </van-list>
     <!-- 回复 -->
     <van-action-sheet v-model="showReply" :round="false" class="reply_dialog" title="回复评论">
-      <van-list v-model="reply.loading" :finished="reply.finished" finished-text="没有更多了">
-        <div class="item van-hairline--bottom van-hairline--top" v-for="index in 8" :key="index">
-          <van-image round width="1rem" height="1rem" fit="fill" src="https://img.yzcdn.cn/vant/cat.jpeg" />
+      <van-list @load="getReply" :immediate-check="false" v-model="reply.loading" :finished="reply.finished" finished-text="没有更多了">
+        <div class="item van-hairline--bottom van-hairline--top" v-for="replys in reply.list" :key="replys.com_id.toString()">
+          <van-image round width="1rem" height="1rem" fit="fill" :src="replys.aut_photo" />
           <div class="info">
-            <p><span class="name">一阵清风</span></p>
-            <p>评论的内容，。。。。</p>
-            <p><span class="time">两天内</span></p>
+            <p><span class="name">{{replys.aut_name}}</span></p>
+            <p>{{replys.content}}</p>
+            <p><span class="time">{{replys.pubdate|relTime}}</span></p>
           </div>
         </div>
       </van-list>
@@ -76,6 +76,7 @@ export default {
       offset: null,
       showReply: false, // 弹出层的显示隐藏
       reply: {
+        commentId: null, // 获取评论的id
         loading: false, // 评论的回复的加载状态
         finished: false, // 评论的回复是否加载完成
         list: [], // 评论的回复的数据
@@ -84,6 +85,31 @@ export default {
     }
   },
   methods: {
+    openReply (commentId) {
+      this.showReply = true // 显示回复层
+      this.reply.commentId = commentId // 传评论的id
+      this.reply.list = [] // 清空回复列表，保证每一次点开都是新的数据
+      this.reply.offset = null // 表示数据从第一页开始
+      this.reply.finished = false // 打开finished 因为上一次打开回复时可能为true 再次打开回复就得重新赋值
+      this.reply.loading = true // 打开加载状态
+      this.getReply() // 主动加载数据
+    },
+    // 获取评论回复
+    async getReply () {
+      const data = await getComments({
+        type: 'c', // 评论的回复
+        source: this.reply.commentId, // 评论的id
+        offset: this.reply.offset
+      })
+      this.reply.list.push(...data.results)
+      this.reply.loading = false
+      if (data.last_id === data.end_id) {
+        this.reply.finished = true
+      } else {
+        this.reply.offset = data.last_id
+      }
+    },
+    // 获取评论
     async onload () {
       const { artId } = this.$route.query // 得到文章id
       const data = await getComments({
