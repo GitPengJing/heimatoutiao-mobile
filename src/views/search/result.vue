@@ -6,7 +6,7 @@
   @click-left='$router.back()'></van-nav-bar>
   <van-list v-model="uploading" :finished="finished" @load="onload" finished-text="没有了，没有奇迹了">
       <van-cell-group>
-        <van-cell v-for="item in articles" :key="item.art_id.toString()">
+        <van-cell :to="`/article?artId=${item.art_id.toString()}`" v-for="item in articles" :key="item.art_id.toString()">
           <div class="article_item">
             <h3 class="van-ellipsis">{{item.title}}</h3>
             <div class="img_box" v-if="item.cover.type===3">

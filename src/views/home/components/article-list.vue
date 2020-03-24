@@ -7,7 +7,7 @@
       <van-list v-model="uploading" :finished="finished" @load="onload">
         <!-- 如果组件距离底部的距离超过了限定的值就会触发load事件 会把uploading变为true 表示加载完毕-->
         <van-cell-group>
-          <van-cell v-for="item in articles" :key="item.art_id.toString()">
+          <van-cell :to="`/article?artId=${item.art_id.toString()}`" v-for="item in articles" :key="item.art_id.toString()">
             <div class="article_item">
               <h3 class="van-ellipsis">{{item.title}}</h3>
               <!-- 根据封面类型决定是三图type===3 单图type===1 还是无图 -->
@@ -25,7 +25,7 @@
                 <span>{{item.pubdate|relTime}}</span>
                 <!-- 根据有无token来判断×的显示 -->
                 <!-- $emit('showOperate')给父组件传送指令 -->
-                <span @click="$emit('showOperate',item.art_id.toString())" class="close" v-if="user.token">
+                <span @click.stop="$emit('showOperate',item.art_id.toString())" class="close" v-if="user.token">
                   <van-icon name="cross"></van-icon>
                 </span>
               </div>
