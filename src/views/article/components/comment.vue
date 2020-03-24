@@ -27,11 +27,24 @@
             <!-- 发布时间 -->
             <span class="time">{{item.pubdate|relTime}}</span>&nbsp;
             <!-- 回复数量 -->
-            <van-tag plain @click="showReply=true">{{reply_count}} 回复</van-tag>
+            <van-tag plain @click="showReply=true">{{item.reply_count}} 回复</van-tag>
           </p>
         </div>
       </div>
     </van-list>
+    <!-- 回复 -->
+    <van-action-sheet v-model="showReply" :round="false" class="reply_dialog" title="回复评论">
+      <van-list v-model="reply.loading" :finished="reply.finished" finished-text="没有更多了">
+        <div class="item van-hairline--bottom van-hairline--top" v-for="index in 8" :key="index">
+          <van-image round width="1rem" height="1rem" fit="fill" src="https://img.yzcdn.cn/vant/cat.jpeg" />
+          <div class="info">
+            <p><span class="name">一阵清风</span></p>
+            <p>评论的内容，。。。。</p>
+            <p><span class="time">两天内</span></p>
+          </div>
+        </div>
+      </van-list>
+    </van-action-sheet>
     <!-- 发布评论 -->
     <div class="reply-container van-hairline--top">
       <van-field v-model="value" placeholder="写评论...">
@@ -60,7 +73,14 @@ export default {
       comments: [],
       // 偏移量 是否分页 如果为null则表示第一页数据 第二页数据为第一页最后一个id
       // 以此类推 当前页最后一个id等于整个评论最后一个id 则表示数据加载完了
-      offset: null
+      offset: null,
+      showReply: false, // 弹出层的显示隐藏
+      reply: {
+        loading: false, // 评论的回复的加载状态
+        finished: false, // 评论的回复是否加载完成
+        list: [], // 评论的回复的数据
+        offset: null // 评论的回复的偏移量
+      }
     }
   },
   methods: {
@@ -74,7 +94,7 @@ export default {
       //  将评论追加到评论列表
       this.comments.push(...data.results)
       //   表示当前加载完毕
-      this.loading = true
+      this.loading = false
       if (data.last_id === data.end_id) {
         //   如果当前页最后一个id等于整个列表最后一个id，表示加载完成
         this.finished = true
@@ -88,6 +108,25 @@ export default {
 </script>
 
 <style lang='less' scoped>
+.reply_dialog {
+  height: 100%;
+  max-height: 100%;
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  .van-action-sheet__header {
+    background: #3296fa;
+    color: #fff;
+    .van-icon-close {
+      color: #fff;
+    }
+  }
+  .van-action-sheet__content{
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 10px 44px;
+  }
+}
 .comment {
   margin-top: 10px;
   /deep/ .item {
