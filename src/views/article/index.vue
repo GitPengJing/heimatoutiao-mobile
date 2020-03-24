@@ -18,7 +18,9 @@
           <p class="time">{{article.pubdate|relTime}}</p>
         </div>
         <!-- 关注与否 -->
-        <van-button round size="small" type="info">{{article.is_followed?'已关注':'+ 关注'}}</van-button>
+        <van-button @click="follow" round size="small" type="info">
+          {{article.is_followed?'已关注':'+ 关注'}}
+          </van-button>
       </div>
       <!-- 文章 -->
       <div class="content">
@@ -31,23 +33,54 @@
         <van-button round size="small" :class="{active:article.attitude===0}" plain icon="delete">不喜欢</van-button>
       </div>
 </div>
+    <!-- 放置一个遮罩层 -->
+    <van-overlay :show="loading" >
+      <!-- 加载进度条 -->
+      <div class='loading-container'>
+         <van-loading />
+      </div>
+    </van-overlay>
 </div>
 </template>
 
 <script>
-import { getArticleInfo } from '@/api/articles'
+import { getArticleInfo } from '@/api/articles' // 引入获取文章详情请求
+import { followUser, unfollowUser } from '@/api/user' // 引入关注用户与取消关注用户请求
 export default {
   data () {
     return {
-      article: [] // 文章详情数据
+      article: [], // 文章详情数据
+      loading: false
     }
   },
   methods: {
+    // 点击关注用户
+    async follow () {
+      try {
+        if (this.article.is_followed) {
+          // 如果为true 则点击为取消关注
+          await unfollowUser(this.article.aut_id)
+        } else {
+          // 如果为false 则点击为关注
+          await followUser({ target: this.article.aut_id })
+        }
+
+        // 将关注状态取反，页面显示
+        this.article.is_followed = !this.article.is_followed
+        this.$Pnotify({ type: 'success', message: this.article.is_followed ? '关注成功' : '取消关注成功' })
+      } catch (error) {
+        // 失败报错
+        this.$Pnotify({ message: '操作失败' })
+      }
+    },
+    // 获取文章详情
     async getArticleInfo () {
+      this.loading = true // 打开遮罩层
       // 取到路由参数中的文章id
       const { artId } = this.$route.query
       // 请求的数据赋值
       this.article = await getArticleInfo(artId)
+      this.loading = false // 关闭遮罩层
     }
   },
   created () {
@@ -57,6 +90,16 @@ export default {
 </script>
 
 <style lang='less' scoped>
+.loading-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.van-overlay {
+  background: none;
+}
 .container {
   height: 100%;
   overflow-y: auto;
