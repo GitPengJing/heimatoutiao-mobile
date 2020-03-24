@@ -20,15 +20,6 @@ export function dislikeArticle (data) {
     data
   })
 }
-/***
- * 取消对文章不喜欢
- */
-// export function notDislikeArticle (artId) {
-//   return request({
-//     url: `/article/dislikes/${artId}`,
-//     method: 'delete'
-//   })
-// }
 
 /*****
  * 举报文章
