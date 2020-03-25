@@ -29,3 +29,12 @@ export function unfollowUser (autId) {
     method: 'delete'
   })
 }
+
+/***
+ * 获取自己的信息
+ */
+export function getMyInfo () {
+  return request({
+    url: '/user'
+  })
+}
