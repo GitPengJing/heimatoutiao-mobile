@@ -70,3 +70,14 @@ export function getComments (params) {
     params
   })
 }
+
+/***
+ * 评论或评论回复
+ */
+export function commentORreply (data) {
+  return request({
+    url: '/comments',
+    method: 'post',
+    data
+  })
+}

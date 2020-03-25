@@ -33,7 +33,7 @@
       </div>
     </van-list>
     <!-- 回复 -->
-    <van-action-sheet v-model="showReply" :round="false" class="reply_dialog" title="回复评论">
+    <van-action-sheet @close="reply.commentId=null" v-model="showReply" :round="false" class="reply_dialog" title="回复评论">
       <van-list @load="getReply" :immediate-check="false" v-model="reply.loading" :finished="reply.finished" finished-text="没有更多了">
         <div class="item van-hairline--bottom van-hairline--top" v-for="replys in reply.list" :key="replys.com_id.toString()">
           <van-image round width="1rem" height="1rem" fit="fill" :src="replys.aut_photo" />
@@ -49,7 +49,7 @@
     <div class="reply-container van-hairline--top">
       <van-field v-model="value" placeholder="写评论...">
         <van-loading v-if="submiting" slot="button" type="spinner" size="16px"></van-loading>
-        <span class="submit" v-else slot="button">提交</span>
+        <span class="submit" @click="submit" v-else slot="button">提交</span>
       </van-field>
     </div>
   </div>
@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import { getComments } from '@/api/articles'
+import { getComments, commentORreply } from '@/api/articles' // 引入请求
 export default {
   data () {
     return {
@@ -85,6 +85,63 @@ export default {
     }
   },
   methods: {
+    // 发布评论
+    async submit () {
+      // 首先判断是否用户登录了
+      if (this.$store.state.user.token) {
+        // 如果有token，表示登录了
+        // 判断是否输入了值
+        if (!this.value) return // 没有直接返回
+        this.submiting = true // 打开提交状态，表示正在提交
+        this.$sleep(800) // 休眠函数  等待800毫秒后才能再次提交 避免频繁提交
+        try {
+          const data = await commentORreply({
+            // 判断是否有回复的id，
+            // 如果有表示是对评论回复 传评论的id ，
+            // 如果没有表示对文章评论 传文章id
+            target: this.reply.commentId ? this.reply.commentId : this.$route.query.artId,
+            // 评论的内容
+            content: this.value,
+            // 如果是对评论回复 则需要传文章id
+            // 如果是对文章评论 则不传
+            art_id: this.reply.commentId ? this.$route.query.artId : null
+          })
+          if (this.reply.commentId) {
+            // 如果有评论id
+            // 将评论加到评论回复列表
+            this.reply.list.unshift(data.new_obj)
+            // 找到对应的评论
+            const comment = this.comments.find(item => item.com_id.toString() === this.reply.commentId)
+            // 回复数量+1
+            comment && comment.reply_count++
+          } else {
+            // 请求参数没有评论id 就加到文章评论头部
+            this.comments.unshift(data.new_obj)
+          }
+          this.value = '' // 清空输入框
+        } catch (error) {
+          this.$Pnotify({ message: '提交失败' })
+        }
+        this.submiting = false // 关闭提交状态
+      } else {
+        // 如果没有 需要用户选择是否去登录
+        try {
+          await this.$dialog.confirm({ title: '提示', message: '您还没有登录，是否登录？' })
+          // 点击确定 去登录 带上当前页的路由参数
+          this.$router.push({
+            path: '/login',
+            query: {
+              // 当前页的完整地址
+              redirectUrl: this.$route.fullPath
+            }
+          })
+        } catch (error) {
+          // 点击取消
+          this.$Pnotify({ message: '您取消了登录' })
+        }
+      }
+    },
+    // 打开弹层
     openReply (commentId) {
       this.showReply = true // 显示回复层
       this.reply.commentId = commentId // 传评论的id
