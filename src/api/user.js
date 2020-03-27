@@ -38,3 +38,12 @@ export function getMyInfo () {
     url: '/user'
   })
 }
+
+/***
+ * 获取用户资料
+ */
+export function getUserProfile () {
+  return request({
+    url: '/user/profile'
+  })
+}
