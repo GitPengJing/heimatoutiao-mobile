@@ -47,3 +47,14 @@ export function getUserProfile () {
     url: '/user/profile'
   })
 }
+
+/***
+ * 修改用户资料
+ */
+export function saveUserInfo (data) {
+  return request({
+    url: '/user/profile',
+    method: 'patch',
+    data: { ...data, photo: null }
+  })
+}
