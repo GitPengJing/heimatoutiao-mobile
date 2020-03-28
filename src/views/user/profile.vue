@@ -2,14 +2,14 @@
   <div class="container">
     <van-nav-bar title="编辑资料" @click-right="saveUser" right-text="保存" left-arrow @click-left="$router.back()"></van-nav-bar>
     <van-cell-group>
-      <van-cell is-link title="头像" center>
+      <van-cell @click="showPhoto=true" is-link title="头像" center>
         <van-image
           slot="default"
           width="1.5rem"
           height="1.5rem"
           fit="cover"
           round
-          src="https://img.yzcdn.cn/vant/cat.jpeg"
+          :src="user.photo"
         />
       </van-cell>
       <van-cell is-link @click="showName=true" title="名称" :value="user.name" />
@@ -20,7 +20,7 @@
     <van-popup v-model="showPhoto" style="width:80%">
       <!-- 内容 -->
       <!-- 1 本地相册选择图片 -->
-      <van-cell is-link title="本地相册选择图片"></van-cell>
+      <van-cell is-link @click="openFile" title="本地相册选择图片"></van-cell>
       <!-- 2 拍照 -->
       <van-cell is-link title="拍照"></van-cell>
     </van-popup>
@@ -48,12 +48,15 @@
           @confirm="clickOk"
          />
     </van-popup>
+    <!-- 文件上传 -->
+    <!-- 隐藏的 -->
+    <input type="file" ref="myfile" style="display:none" @change="uploadFile">
   </div>
 </template>
 
 <script>
 import dayjs from 'dayjs'
-import { getUserProfile, saveUserInfo } from '@/api/user'
+import { getUserProfile, saveUserInfo, updatePhoto } from '@/api/user'
 export default {
   data () {
     return {
@@ -76,6 +79,21 @@ export default {
     }
   },
   methods: {
+    // 上传文件
+    async uploadFile (params) {
+      const data = new FormData()
+      data.append('photo', this.$refs.myfile.files[0])
+      const res = await updatePhoto(data)
+      // 把上传的文件地址给变量
+      this.user.photo = res.photo
+      // 关闭弹层
+      this.showPhoto = false
+    },
+    // 触发自定义事件上传文件
+    openFile () {
+      // 触发自定义方法
+      this.$refs.myfile.click()
+    },
     // 编辑昵称
     editName () {
       // 判断输入的昵称是否是1-7位
