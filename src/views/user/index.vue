@@ -55,7 +55,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['deleteUser']), // 引入删除用户操作
+    ...mapMutations(['deleteUser', 'updatePhoto']), // 引入删除用户、更新头像操作
     async logOff () {
       try {
         await this.$dialog.confirm({ title: '提示', message: '确定要退出吗？' })
@@ -71,6 +71,8 @@ export default {
     // 获取我的信息
     async getMyInfo () {
       this.userInfo = await getMyInfo()
+      // 将用户头像传给载荷
+      this.updatePhoto({ photo: this.userInfo.photo })
     }
   },
   created () {
