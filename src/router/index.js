@@ -22,7 +22,8 @@ const routes = [
     children: [
       {
         path: '', // 首页组件
-        component: home
+        component: home,
+        meta: { isAlive: true } // 是否缓存组件实例
       },
       {
         path: '/question', // 问答组件

@@ -1,6 +1,6 @@
 <template>
   <!-- 封装文章列表组件 -->
-  <div class="scroll-wrapper">
+  <div class="scroll-wrapper" @scroll="remember" ref="myScroll">
     <!-- van-pull-refresh实现下拉刷新 -->
     <van-pull-refresh v-model="downloading" @refresh="onRefresh" :success-text="successText">
       <!-- van-list实现上拉加载数据 -->
@@ -60,7 +60,8 @@ export default {
       downloading: false, // 下拉刷新状态
       articles: [], // 文章列表
       successText: '', // 刷新成功提示文本
-      timeStamp: null // 存放时间戳
+      timeStamp: null, // 存放时间戳
+      scrollTop: 0 // 记录滚动位置
     }
   },
   created () {
@@ -81,8 +82,37 @@ export default {
         }
       }
     })
+    eventBus.$on('changeTab', id => {
+      // 要判断 当前的文章列表  接收的id  是否等于此id
+      // 如果相等 表示 该文章列表实例 就是需要去滚动的 实例
+      if (id === this.channel_id) {
+        this.$nextTick(() => {
+          // 滚动到记录的位置
+          this.$refs.myScroll.scrollTop = this.scrollTop
+        })
+      }
+    })
+  },
+  // 激活函数 只有被keep-alive包裹下执行
+  // 组件从睡眠状态到激活状态
+  activated () {
+    // 判断是否有这个div 以及是否滚动
+    if (this.$refs.myScroll && this.scrollTop) {
+      // 切回组件的时候回到原来滚动的位置
+      this.$refs.myScroll.scrollTop = this.scrollTop
+    }
   },
   methods: {
+    // 滚动事件记录滚动位置
+    remember (event) {
+      // 利用防抖降低函数执行频率
+      // console.log(event)
+      clearTimeout(this.timer)
+      this.timer = setTimeout(() => {
+        // 将滚动的位置赋值给变量
+        this.scrollTop = event.target.scrollTop
+      }, 500)
+    },
     // 下拉加载 组件距离底部距离小于默认值触发
     async onload () {
       await this.$sleep()

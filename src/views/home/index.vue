@@ -2,7 +2,7 @@
   <div class="container">
       <!-- 放置tabs组件 -->
       <!-- swipeable 手势滑动切换 -->
-      <van-tabs swipeable v-model="activeIndex">
+      <van-tabs swipeable v-model="activeIndex" @change="changeTab">
          <!-- 内部需要放置子 标签  title值为当前显示的内容-->
          <!-- van-tab是vant组件的样式  -->
          <van-tab :title="item.name" v-for="item in channels" :key="item.id">
@@ -63,6 +63,11 @@ export default {
     }
   },
   methods: {
+    // 监听变迁页改变事件
+    changeTab () {
+      // 传当前激活的页签的id
+      eventBus.$emit('changeTab', this.channels[this.activeIndex].id)
+    },
     // 添加我的频道
     async addMyChannels (channel) {
       await addMyChannels(channel)
